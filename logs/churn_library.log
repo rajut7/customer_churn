@@ -1,0 +1,5 @@
+root - INFO - Testing import_data: SUCCESS
+root - INFO - Testing exploaratory Data: SUCCESS
+root - INFO - Testing encoder_helper: SUCCESS
+root - INFO - Testing feature Engineering: SUCCESS
+root - INFO - Testing train models: SUCCESS
