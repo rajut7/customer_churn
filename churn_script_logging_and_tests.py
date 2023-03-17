@@ -1,6 +1,17 @@
-'''
-Testing and logging python file
-'''
+"""
+This is the Python Test for the churn_library.py module.
+
+This module will be used to test
+    1. import_data
+    2. peform_eda
+    3. encode_helper
+    4. perform_feature_engineering
+    5. train_test_model
+
+Author: Raju Tadisetti
+Date: March 17 2023
+"""
+import os
 import logging
 import pytest
 import churn_library as cls
@@ -36,12 +47,19 @@ def test_import(import_data):
 def test_eda(perform_eda):
     """
     test exploaratory data anlysis
-"""
+        """
     try:
         perform_eda(pytest.df)
         logging.info("Testing exploaratory Data: SUCCESS")
     except KeyError as err:
         logging.error('Testing eda: The feature wasn not found')
+        raise err
+    try:
+        assert os.path.isfile('./images/count.png')
+        assert os.path.isfile('./images/corr.png')
+        assert os.path.isfile('./images/hist.png')
+    except AssertionError as err:
+        logging.error("Testing eda: images weren't saved")
         raise err
 
 
@@ -81,6 +99,11 @@ def test_perform_feature_engineering(perform_feature_engineering):
     pytest.x_test = x_test
     pytest.y_train = y_train
     pytest.y_test = y_test
+    try:
+        assert x_train.shape == y_train.shape
+        assert x_test.shape == y_test.shape
+    except AssertionError as err:
+        logging.warning(" Testing feature engineering: invalid split data")
 
 
 def test_train_models(train_models):
@@ -97,6 +120,15 @@ def test_train_models(train_models):
     except NameError as err:
         logging.error("Model hasn't defined")
         raise err
+    try:
+        assert os.path.isfile('./models/rfc_model.pkl')
+        assert os.path.isfile('./images/logi.png')
+        assert os.path.isfile('./images/feautre_importance.jpeg')
+        assert os.path.isfile('./images/roc_curve.png')
+        assert os.path.isfile('./models/logistic_model.pkl')
+    except AssertionError as err:
+        logging.error(
+            " Testing train model: the model hasn't trained properly")
 
 
 if __name__ == "__main__":

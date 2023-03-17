@@ -1,10 +1,21 @@
-'''
-import necessary libraries to train machine learning mmodel
-'''
+"""
+This is the Python Test for the churn_library.py module.
 
+This module will be used to create ML pipeline
+    1. import_data
+    2. peform_eda
+    3. encode_helper
+    4. perform_feature_engineering
+    5. train_test_model
+    6. classification_report_image
+    7. feature_importance_plot
+
+Author: Raju Tadisetti
+Date: March 17 2023
+"""
 import os
 import joblib
-from sklearn.metrics import plot_roc_curve, classification_report
+from sklearn.metrics import roc_curve, classification_report, roc_auc_score
 from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
@@ -124,7 +135,8 @@ def classification_report_image(y_train,
     output:
              None
     '''
-    plt.rc('figure', figsize=(5, 5))
+    plt.figure(figsize=(20, 5))
+    #plt.rc('figure', figsize=(5, 5))
     # plt.text(0.01, 0.05, str(model.summary()), {'fontsize': 12}) old approach
     plt.text(0.01, 1.25, str('Random Forest Train'), {
              'fontsize': 10}, fontproperties='monospace')
@@ -137,7 +149,8 @@ def classification_report_image(y_train,
     plt.axis('off')
     plt.savefig('./images/random.png')
 
-    plt.rc('figure', figsize=(5, 5))
+    plt.figure(figsize=(20, 5))
+    #plt.rc('figure', figsize=(5, 5))
     plt.text(0.01, 1.25, str('Logistic Regression Train'),
              {'fontsize': 10}, fontproperties='monospace')
     plt.text(0.01, 0.05, str(classification_report(y_train, y_train_preds_lr)), {
@@ -181,6 +194,26 @@ def feature_importance_plot(model, X_data, output_pth):
     plt.savefig(output_pth)
 
 
+def roc_curve_plot(y_test, y_test_preds_rf, y_test_preds_lr):
+    fpr1, tpr1, _ = roc_curve(y_test, y_test_preds_rf)
+    fpr2, tpr2, _ = roc_curve(y_test, y_test_preds_lr)
+
+    # Calculate the AUC score for each model
+    auc1 = roc_auc_score(y_test, y_test_preds_rf)
+    auc2 = roc_auc_score(y_test, y_test_preds_lr)
+
+    plt.figure(figsize=(20, 5))
+
+    # Plot the ROC curves for both models on the same figure
+    plt.plot(fpr1, tpr1, label=f"Random forest(AUC = {auc1:.2f})")
+    plt.plot(fpr2, tpr2, label=f"logistic regression(AUC = {auc2:.2f})")
+
+    # Add a legend and title to the plot
+    plt.legend()
+    plt.title('ROC curves of two models')
+    plt.savefig('./images/roc_curve.png')
+
+
 def train_models(X_train, X_test, y_train, y_test):
     '''
     train, store model results: images + scores, and store models
@@ -217,16 +250,10 @@ def train_models(X_train, X_test, y_train, y_test):
     y_train_preds_lr = lrc.predict(X_train)
     y_test_preds_lr = lrc.predict(X_test)
 
+    roc_curve_plot(y_test, y_test_preds_rf, y_test_preds_lr)
+
     joblib.dump(cv_rfc.best_estimator_, './models/rfc_model.pkl')
     joblib.dump(lrc, './models/logistic_model.pkl')
-
-    plt.figure(figsize=(15, 8))
-    ax = plt.gca()
-    lrc_plot = plot_roc_curve(lrc, X_test, y_test)
-    rfc_plot = plot_roc_curve(cv_rfc.best_estimator_, X_test, y_test)
-    lrc_plot.plot(ax=ax, alpha=0.8)
-    rfc_plot.plot(ax=ax, alpha=0.8)
-    plt.savefig('./images/roc_curve.png')
 
     classification_report_image(
         y_train,
@@ -235,7 +262,7 @@ def train_models(X_train, X_test, y_train, y_test):
         y_train_preds_rf,
         y_test_preds_lr,
         y_test_preds_rf)
-    feature_importance_plot(cv_rfc, X_train, './images/feautre_importance.png')
-
-
-
+    feature_importance_plot(
+        cv_rfc,
+        X_train,
+        './images/feautre_importance.jpeg')
