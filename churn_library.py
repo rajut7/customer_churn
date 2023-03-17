@@ -20,7 +20,6 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import normalize
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -266,3 +265,19 @@ def train_models(X_train, X_test, y_train, y_test):
         cv_rfc,
         X_train,
         './images/feautre_importance.jpeg')
+
+
+if __name__ == "__main__":
+    cat_columns = [
+        'Gender',
+        'Education_Level',
+        'Marital_Status',
+        'Income_Category',
+        'Card_Category'
+    ]
+    data_frame = import_data("./data/bank_data.csv")
+    perform_eda(data_frame)
+    new_data_frame = encoder_helper(data_frame, cat_columns)
+    X_train, X_test, Y_train, Y_test = perform_feature_engineerig(
+        new_data_frame, new_data_frame['Churn'])
+    train_models(X_train, X_test, Y_train, Y_test)
